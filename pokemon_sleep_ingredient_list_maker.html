@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>食材得意 厳選状況メーカー</title>
+<style>
+:root{--bg:#f4f6f3;--fg:#1d2420;--card:#fff;--bd:#c9d1c8;--ac:#2f8f5b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161a17;--fg:#e8eee9;--card:#202622;--bd:#38413a}}
+:root[data-theme="dark"]{--bg:#161a17;--fg:#e8eee9;--card:#202622;--bd:#38413a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;padding:14px;background:var(--bg);color:var(--fg);font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;font-size:14px}
+h1{font-size:18px;margin:0 0 10px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+button,select,input,textarea{font:inherit;color:inherit;background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:5px 7px;box-sizing:border-box}
+button{cursor:pointer}button.main{background:var(--ac);color:#fff;border-color:var(--ac);font-weight:700;padding:8px 14px}
+input[type=checkbox]{width:20px;height:20px;padding:0}
+.wrap{overflow-x:auto;max-width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--card)}
+table{border-collapse:collapse;white-space:nowrap}
+th,td{padding:4px;border-bottom:1px solid var(--bd);text-align:center;font-weight:400}
+th{font-size:12px;opacity:.75}.amt{font-weight:700;min-width:110px}.pos{color:#1f9d55}.neg{color:#d93636}tr.k1 td{background:rgba(255,226,102,.3)}tr.k3 td{background:rgba(176,132,232,.25)}.lv button{padding:3px 6px;margin-left:2px}
+#out{display:none;margin-top:14px}#out img{max-width:100%;border:1px solid var(--bd);background:#fff}
+textarea{width:100%;height:70px;margin-top:6px;display:none}
+</style></head><body>
+<h1>食材得意 厳選状況メーカー</h1>
+<div class="wrap"><table><thead><tr id="hd"></tr></thead><tbody id="rows"></tbody></table></div>
+<div class="bar"><button class="main" id="mk">画像を作る</button><button id="ex">書き出し</button><button id="im">読み込み</button></div>
+<textarea id="io" placeholder="書き出し:コピーして保存 / 読み込み:貼り付けてもう一度「読み込み」"></textarea>
+<div id="out"><p>画像を長押し(PC は右クリック)で保存できます。 <a id="dl" download="shokuzai-selection.png">PNGをダウンロード</a></p><img id="img" alt="食材得意厳選状況"></div>
+<script>
+const $=id=>document.getElementById(id);
+const ING=[["ネギ","🌿"],["キノコ","🍄"],["リンゴ","🍎"],["ハーブ","🌶️"],["ミート","🥩"],["ミルク","🥛"],["ミツ","🍯"],["オイル","🫒"],["ジンジャー","🌱"],["トマト","🍅"],["カカオ","🍫"],["シッポ","🍤"],["ダイズ","🥜"],["コーン","🌽"],["ポテト","🥔"],["タマゴ","🥚"],["コーヒー","☕"],["カボチャ","🎃"],["アボカド","🥑"]];
+const SK=["得意","中間","苦手"],PR=["完了","妥協","厳選中"],GR=["完了","ホリデーかそれ以降","—"],SEQ=["AAA","AAB","AAC","ABA","ABB","ABC"];
+const row=o=>Object.assign({sk:"中間",pr:"厳選中",gr:"—",poke:"",lv:60,seq:"AAA",blue:false,ote:false,sm:true,sp:false,ss:false,nu:false,nd:false,np:false,nq:false,sps:false,memo:""},o||{});
+let S={note:"青:30or50運用",rows:ING.map(()=>row())};
+try{const t=localStorage.getItem("shokuzai2");if(t){const d=JSON.parse(t);S={note:d.note,rows:ING.map((_,i)=>row(d.rows[i]))}}}catch(e){}
+const save=()=>{try{localStorage.setItem("shokuzai2",JSON.stringify(S))}catch(e){}};
+function score(r){const b=r.blue,s=SEQ.includes(r.seq)?r.seq:"AAA";let v=(b?{AAA:-2.5,AAB:-2.5,AAC:-2.5,ABA:-4.5,ABB:-4.5,ABC:-4.5}:{AAA:0,AAB:-5,AAC:-5,ABA:-3.5,ABB:-1.5,ABC:-6.5})[s];
+ if(r.ote)v+=2.5;if(!r.sm)v-=3.5;if(r.sp)v+=1.5;if(r.ss)v+=2;if(r.nu)v+=2;if(r.nd)v-=2;if(r.np)v+=1;if(r.nq)v-=1;if(r.sps)v+=0.5;return Math.round(v*10)/10}
+const kc=r=>r.sk==="得意"?"k1":r.sk==="苦手"?"k3":"";const ac=r=>{const v=score(r);return v>0?"pos":v<0?"neg":""};
+const amt=r=>{const v=score(r);return"AAA食M"+(v?(v>0?"+":"-")+Math.abs(Math.round(v*10))+"%":"")};
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+const sel=(i,k,o,v,n)=>`<select data-i="${i}" data-k="${k}"${n?' data-n="1"':""}>`+o.map(x=>{const a=Array.isArray(x)?x:[x,x];return`<option value="${a[0]}"${String(a[0])===String(v)?" selected":""}>${a[1]}</option>`}).join("")+"</select>";
+const inp=(i,k,v,t,w)=>`<input data-i="${i}" data-k="${k}" type="${t||"text"}" value="${esc(v)}" style="width:${w}px">`;
+const chk=(i,k,v)=>`<input data-i="${i}" data-k="${k}" type="checkbox"${v?" checked":""}>`;
+$("hd").innerHTML=["食材","得意苦手","食材量の目安","厳選進捗","育成","ポケモン名","Lv","食材配列","30または50運用","おてボ","食M","スピM","食S","性格食↑","性格食↓","性格スピ↑","性格スピ↓","スピS","備考"].map(h=>`<th>${h}</th>`).join("");
+function render(){
+ $("rows").innerHTML=S.rows.map((r,i)=>`<tr class="${kc(r)}"><td style="text-align:left">${ING[i][1]} ${ING[i][0]}</td><td>${sel(i,"sk",SK,r.sk)}</td><td class="amt ${ac(r)}" id="a${i}">${amt(r)}</td><td>${sel(i,"pr",PR,r.pr)}</td><td>${sel(i,"gr",GR,r.gr)}</td><td>${inp(i,"poke",r.poke,0,110)}</td><td class="lv">${inp(i,"lv",r.lv,"number",56)}${[30,50,60,70].map(n=>`<button type="button" data-lv="${n}" data-i="${i}">${n}</button>`).join("")}</td><td>${sel(i,"seq",SEQ,r.seq)}</td><td>${chk(i,"blue",r.blue)}</td><td>${chk(i,"ote",r.ote)}</td><td>${chk(i,"sm",r.sm)}</td><td>${chk(i,"sp",r.sp)}</td><td>${chk(i,"ss",r.ss)}</td><td>${chk(i,"nu",r.nu)}</td><td>${chk(i,"nd",r.nd)}</td><td>${chk(i,"np",r.np)}</td><td>${chk(i,"nq",r.nq)}</td><td>${chk(i,"sps",r.sps)}</td><td>${inp(i,"memo",r.memo,0,90)}</td></tr>`).join("");
+}
+$("rows").addEventListener("input",e=>{const t=e.target,i=t.dataset.i;if(i==null||!t.dataset.k)return;S.rows[i][t.dataset.k]=t.type==="checkbox"?t.checked:(t.type==="number"||t.dataset.n)?+t.value:t.value;const a=$("a"+i);a.textContent=amt(S.rows[i]);a.className="amt "+ac(S.rows[i]);t.closest("tr").className=kc(S.rows[i]);save()});
+$("rows").addEventListener("click",e=>{const b=e.target.closest("button[data-lv]");if(!b)return;S.rows[b.dataset.i].lv=+b.dataset.lv;b.closest("td").querySelector("input").value=b.dataset.lv;save()});
+$("ex").onclick=()=>{const t=$("io");t.style.display="block";t.value=btoa(unescape(encodeURIComponent(JSON.stringify(S))));t.select()};
+$("im").onclick=()=>{const t=$("io");if(t.style.display!=="block"){t.style.display="block";t.value="";t.focus();return}
+ try{const d=JSON.parse(decodeURIComponent(escape(atob(t.value.trim()))));S={note:d.note||"",rows:ING.map((_,i)=>row(d.rows[i]))};save();render();t.value=""}catch(e){alert("読み込めませんでした。書き出したテキストをそのまま貼り付けてください。")}};
+function make(){
+ const C=[["食材",100],["得意苦手",56],["食材量の目安",130],["厳選進捗",62],["育成",150],["ポケモン名",100],["Lv",36],["食材配列",56],["30または50運用",96],["おてボ",52],["食M",40],["スピM",52],["食S",40],["性格食↑",70],["性格食↓",70],["性格スピ↑",80],["性格スピ↓",80],["スピS",48],["備考",100]];
+ const W=C.map(a=>a[1]),RH=28,P=2,sc=2,tw=W.reduce((a,b)=>a+b,0),n=S.rows.length;
+ const F='"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif';
+ const cv=document.createElement("canvas");cv.width=(tw+P*2)*sc;cv.height=(RH*(n+1)+P*2)*sc;
+ const c=cv.getContext("2d");c.scale(sc,sc);c.fillStyle="#fff";c.fillRect(0,0,cv.width,cv.height);
+ c.textBaseline="middle";c.lineWidth=1;c.strokeStyle="#c9d1c8";
+ const X=ci=>P+W.slice(0,ci).reduce((a,b)=>a+b,0);
+ let RB="#fff";
+ function cell(ci,ri,t,fg,fs,bold){const x=X(ci),y=P+ri*RH;c.fillStyle=RB;c.fillRect(x,y,W[ci],RH);c.strokeRect(x+.5,y+.5,W[ci],RH);
+  if(t===""||t==null)return;t=String(t);fs=fs||15;const wt=bold?"700 ":"";c.font=wt+fs+"px "+F;while(c.measureText(t).width>W[ci]-6&&fs>8){fs--;c.font=wt+fs+"px "+F}
+  c.textAlign="center";c.fillStyle=fg||"#1d2420";c.fillText(t,x+W[ci]/2,y+RH/2+1)}
+ function box(ci,ri,on){cell(ci,ri,"");const x=X(ci)+W[ci]/2,y=P+ri*RH+RH/2;c.lineWidth=1.5;c.beginPath();c.rect(x-7,y-7,14,14);
+  if(on){c.fillStyle="#2f8f5b";c.strokeStyle="#2f8f5b";c.fill();c.stroke();c.beginPath();c.strokeStyle="#fff";c.moveTo(x-4,y);c.lineTo(x-1,y+3);c.lineTo(x+4,y-3);c.stroke()}
+  else{c.fillStyle="#fff";c.strokeStyle="#8a948c";c.fill();c.stroke()}
+  c.lineWidth=1;c.strokeStyle="#c9d1c8"}
+ RB="#eef2ed";C.forEach((h,ci)=>cell(ci,0,h[0],"#4a554d",12));
+ const K=["blue","ote","sm","sp","ss","nu","nd","np","nq","sps"];
+ S.rows.forEach((r,i)=>{const y=i+1,v=score(r);RB=r.sk==="得意"?"#fff3c4":r.sk==="苦手"?"#ece1f9":"#fff";
+  cell(0,y,"");const x=X(0),yc=P+y*RH+RH/2+1;c.textAlign="left";c.font="16px "+F;c.fillStyle="#000";c.fillText(ING[i][1],x+6,yc);c.font="14px "+F;c.fillStyle="#1d2420";c.fillText(ING[i][0],x+28,yc);
+  cell(1,y,r.sk);cell(2,y,amt(r),v>0?"#1f9d55":v<0?"#d93636":"#1d2420",15,true);cell(3,y,r.pr);cell(4,y,r.gr);
+  cell(5,y,r.poke);cell(6,y,r.lv);cell(7,y,r.seq);K.forEach((k,j)=>box(8+j,y,r[k]));cell(18,y,r.memo)});
+ const u=cv.toDataURL("image/png");$("img").src=u;$("dl").href=u;$("out").style.display="block";$("out").scrollIntoView({behavior:"smooth"});
+}
+$("mk").onclick=make;render();
+</script></body></html>
