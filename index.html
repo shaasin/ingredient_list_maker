@@ -16,7 +16,7 @@ input[type=checkbox]{width:20px;height:20px;padding:0}
 .wrap{overflow-x:auto;max-width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--card)}
 table{border-collapse:collapse;white-space:nowrap}
 th,td{padding:4px;border-bottom:1px solid var(--bd);text-align:center;font-weight:400}
-th{font-size:12px;opacity:.75}.amt{font-weight:700;min-width:110px}.pos{color:#1f9d55}.neg{color:#d93636}tr.k1 td{background:rgba(255,226,102,.3)}tr.k3 td{background:rgba(176,132,232,.25)}.lv button,.ops button{padding:3px 6px;margin-left:2px}
+th{font-size:12px;opacity:.75}.amt{font-weight:700;font-size:15px;min-width:130px;padding:4px 6px;white-space:nowrap}.amt input{font-weight:700;padding:2px 4px;text-align:left}.amt input[readonly]{border:0;background:transparent;padding:2px 0;outline:none}.pos{color:#1f9d55}.neg{color:#d93636}tr.k1 td{background:rgba(255,226,102,.3)}tr.k3 td{background:rgba(176,132,232,.25)}.lv button,.ops button{padding:3px 6px;margin-left:2px}
 #out{display:none;margin-top:14px}#out img{max-width:100%;border:1px solid var(--bd);background:#fff}
 textarea{width:100%;height:70px;margin-top:6px;display:none}
 </style></head><body>
@@ -31,8 +31,8 @@ textarea{width:100%;height:70px;margin-top:6px;display:none}
 const $=id=>document.getElementById(id);
 const ING=[["ネギ","🌿"],["キノコ","🍄"],["リンゴ","🍎"],["ハーブ","🌶️"],["ミート","🥩"],["ミルク","🥛"],["ミツ","🍯"],["オイル","🫒"],["ジンジャー","🌱"],["トマト","🍅"],["カカオ","🍫"],["シッポ","🍤"],["ダイズ","🥜"],["コーン","🌽"],["ポテト","🥔"],["タマゴ","🥚"],["コーヒー","☕"],["カボチャ","🎃"],["アボカド","🥑"]];
 const SK=["得意","中間","苦手"],PR=["完了","妥協","厳選中"],GR=["完了","育成中","次回ミニアメブ","ホリデーかそれ以降","—"],SEQ=["AAA","AAB","AAC","ABA","ABB","ABC"];
-const row=o=>Object.assign({sk:"中間",pr:"厳選中",gr:"—",poke:"",lv:60,seq:"AAA",blue:false,ote:false,sm:true,sp:false,ss:false,nu:false,nd:false,np:false,nq:false,sps:false,memo:""},o||{});
-const norm=d=>{const r=ING.map((_,i)=>row(Object.assign({id:i},(d.rows||[])[i])));if(new Set(r.map(x=>x.id)).size!==ING.length||r.some(x=>!(x.id>=0&&x.id<ING.length)))r.forEach((x,i)=>x.id=i);r.forEach(x=>delete x.o5);return{note:d.note||"",o5:!!d.o5,rows:r}};
+const row=o=>Object.assign({sk:"中間",pr:"厳選中",gr:"—",poke:"",lv:60,seq:"AAA",blue:false,ote:false,sm:true,sp:false,ss:false,nu:false,nd:false,np:false,nq:false,sps:false,me:false,man:0,memo:""},o||{});
+const norm=d=>{const r=ING.map((_,i)=>{const o=(d.rows||[])[i]||{};return row(Object.assign({id:i},o,o.man!=null&&o.me==null?{me:true}:{}))});if(new Set(r.map(x=>x.id)).size!==ING.length||r.some(x=>!(x.id>=0&&x.id<ING.length)))r.forEach((x,i)=>x.id=i);r.forEach(x=>delete x.o5);return{note:d.note||"",o5:!!d.o5,rows:r}};
 let S={note:"",o5:false,rows:ING.map((_,i)=>row({id:i}))};
 try{const t=localStorage.getItem("shokuzai2");if(t)S=norm(JSON.parse(t))}catch(e){}
 const save=()=>{try{localStorage.setItem("shokuzai2",JSON.stringify(S))}catch(e){}};
@@ -41,17 +41,24 @@ function hist(key){const n=Date.now();if(key&&key===lk&&n-lt<2000){lt=n;return}l
 function bt(){$("un").disabled=!UN.length;$("re").disabled=!RE.length;$("un").textContent="戻る";$("re").textContent="やり直し"}
 function score(r){const b=r.blue,s=SEQ.includes(r.seq)?r.seq:"AAA";let v=(b?{AAA:-2.5,AAB:-2.5,AAC:-2.5,ABA:-4.5,ABB:-4.5,ABC:-4.5}:{AAA:0,AAB:-5,AAC:-5,ABA:-3.5,ABB:-1.5,ABC:-6.5})[s];
  if(r.ote)v+=S.o5?0.5:2.5;if(!r.sm)v-=3.5;if(r.sp)v+=1.5;if(r.ss)v+=2;if(r.nu)v+=2;if(r.nd)v-=2;if(r.np)v+=1;if(r.nq)v-=1;if(r.sps)v+=0.5;return Math.round(v*10)/10}
-const kc=r=>r.sk==="得意"?"k1":r.sk==="苦手"?"k3":"";const ac=r=>{const v=score(r);return v>0?"pos":v<0?"neg":""};
-const amt=r=>{const v=score(r);return"AAA食M"+(v?(v>0?"+":"-")+Math.abs(Math.round(v*10))+"%":"")};
+const kc=r=>r.sk==="得意"?"k1":r.sk==="苦手"?"k3":"";const autoPct=r=>Math.round(score(r)*10);const pct=r=>r.me&&r.man!=null?r.man:autoPct(r);const sg=v=>(v>=0?"+":"")+v;const wd=(r,t)=>r.me?"6ch":(t.length+.6)+"ch";const ac=r=>{const v=pct(r);return v>0?"pos":v<0?"neg":""};
+const amt=r=>{const v=pct(r);return"AAA食M"+sg(v)+"%"};
 const esc=s=>String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const sel=(i,k,o,v,n)=>`<select data-i="${i}" data-k="${k}"${n?' data-n="1"':""}>`+o.map(x=>{const a=Array.isArray(x)?x:[x,x];return`<option value="${a[0]}"${String(a[0])===String(v)?" selected":""}>${a[1]}</option>`}).join("")+"</select>";
 const inp=(i,k,v,t,w)=>`<input data-i="${i}" data-k="${k}" type="${t||"text"}" value="${esc(v)}" style="width:${w}px">`;
 const chk=(i,k,v)=>`<input data-i="${i}" data-k="${k}" type="checkbox"${v?" checked":""}>`;
-$("hd").innerHTML=["食材","操作","得意苦手","食材量の目安","厳選進捗","育成","ポケモン名","Lv","食材配列","30または50運用","おてボ","食M","スピM","食S","性格食↑","性格食↓","性格スピ↑","性格スピ↓","スピS","備考"].map(h=>`<th>${h}</th>`).join("");
+$("hd").innerHTML=["食材","操作","得意苦手","食材量の目安","手入力","厳選進捗","育成","ポケモン名","Lv","食材配列","30または50運用","おてボ","食M","スピM","食S","性格食↑","性格食↓","性格スピ↑","性格スピ↓","スピS","備考"].map(h=>`<th>${h}</th>`).join("");
 function render(){$("g5").checked=!!S.o5;
- $("rows").innerHTML=S.rows.map((r,i)=>`<tr class="${kc(r)}"><td style="text-align:left">${ING[r.id][1]} ${ING[r.id][0]}</td><td class="ops"><button data-a="up" data-i="${i}">↑</button><button data-a="dn" data-i="${i}">↓</button><button data-a="rs" data-i="${i}">リセット</button></td><td>${sel(i,"sk",SK,r.sk)}</td><td class="amt ${ac(r)}" id="a${i}">${amt(r)}</td><td>${sel(i,"pr",PR,r.pr)}</td><td>${sel(i,"gr",GR,r.gr)}</td><td>${inp(i,"poke",r.poke,0,110)}</td><td class="lv">${inp(i,"lv",r.lv,"number",56)}${[30,50,60,70].map(n=>`<button type="button" data-lv="${n}" data-i="${i}">${n}</button>`).join("")}</td><td>${sel(i,"seq",SEQ,r.seq)}</td><td>${chk(i,"blue",r.blue)}</td><td>${chk(i,"ote",r.ote)}</td><td>${chk(i,"sm",r.sm)}</td><td>${chk(i,"sp",r.sp)}</td><td>${chk(i,"ss",r.ss)}</td><td>${chk(i,"nu",r.nu)}</td><td>${chk(i,"nd",r.nd)}</td><td>${chk(i,"np",r.np)}</td><td>${chk(i,"nq",r.nq)}</td><td>${chk(i,"sps",r.sps)}</td><td>${inp(i,"memo",r.memo,0,90)}</td></tr>`).join("");
+ $("rows").innerHTML=S.rows.map((r,i)=>`<tr class="${kc(r)}"><td style="text-align:left">${ING[r.id][1]} ${ING[r.id][0]}</td><td class="ops"><button data-a="up" data-i="${i}">↑</button><button data-a="dn" data-i="${i}">↓</button><button data-a="rs" data-i="${i}">リセット</button></td><td>${sel(i,"sk",SK,r.sk)}</td><td class="amt ${ac(r)}" id="a${i}">AAA食M<input data-i="${i}" data-k="man" type="text"${r.me?"":" readonly"} value="${sg(pct(r))}" style="width:${wd(r,sg(pct(r)))}">%</td><td>${chk(i,"me",r.me)}</td><td>${sel(i,"pr",PR,r.pr)}</td><td>${sel(i,"gr",GR,r.gr)}</td><td>${inp(i,"poke",r.poke,0,110)}</td><td class="lv">${inp(i,"lv",r.lv,"number",56)}${[30,50,60,70].map(n=>`<button type="button" data-lv="${n}" data-i="${i}">${n}</button>`).join("")}</td><td>${sel(i,"seq",SEQ,r.seq)}</td><td>${chk(i,"blue",r.blue)}</td><td>${chk(i,"ote",r.ote)}</td><td>${chk(i,"sm",r.sm)}</td><td>${chk(i,"sp",r.sp)}</td><td>${chk(i,"ss",r.ss)}</td><td>${chk(i,"nu",r.nu)}</td><td>${chk(i,"nd",r.nd)}</td><td>${chk(i,"np",r.np)}</td><td>${chk(i,"nq",r.nq)}</td><td>${chk(i,"sps",r.sps)}</td><td>${inp(i,"memo",r.memo,0,90)}</td></tr>`).join("");
 }
-$("rows").addEventListener("input",e=>{const t=e.target,i=t.dataset.i;if(i==null||!t.dataset.k)return;hist(t.type==="text"||t.type==="number"?i+t.dataset.k:null);S.rows[i][t.dataset.k]=t.type==="checkbox"?t.checked:(t.type==="number"||t.dataset.n)?+t.value:t.value;const a=$("a"+i);a.textContent=amt(S.rows[i]);a.className="amt "+ac(S.rows[i]);t.closest("tr").className=kc(S.rows[i]);save()});
+$("rows").addEventListener("input",e=>{const t=e.target,i=t.dataset.i;if(i==null||!t.dataset.k)return;
+ if(t.dataset.k==="man"){{const c=t.value.replace(/[^0-9+-]/g,"");if(c!==t.value)t.value=c}if(!/^[+-]?\d+$/.test(t.value)||+t.value<-100||+t.value>200)return;hist(i+"man");S.rows[i].man=+t.value;refresh(i);save();return}
+ hist(t.type==="text"||t.type==="number"?i+t.dataset.k:null);S.rows[i][t.dataset.k]=t.type==="checkbox"?t.checked:(t.type==="number"||t.dataset.n)?+t.value:t.value;if(t.dataset.k==="me"&&t.checked)S.rows[i].man=Math.max(-100,Math.min(200,autoPct(S.rows[i])));refresh(i);save()});
+function refresh(i){const r=S.rows[i],td=$("a"+i),v=pct(r),f=td.querySelector("input");td.className="amt "+ac(r);f.readOnly=!r.me;if(document.activeElement!==f)f.value=sg(v);f.style.width=wd(r,sg(v));td.parentNode.className=kc(r)}
+$("rows").addEventListener("change",e=>{const t=e.target;if(t.dataset.k!=="man")return;const i=t.dataset.i,r=S.rows[i];
+ if(!r.me||t.value===""||isNaN(+t.value)){t.value=sg(pct(r));return}
+ {const n=Math.max(-100,Math.min(200,Math.round(+t.value)));if(r.man!==n){hist();r.man=n}}
+ save();t.value=sg(pct(r));refresh(i)});
 $("rows").addEventListener("click",e=>{const b=e.target.closest("button[data-lv]");if(!b)return;hist();S.rows[b.dataset.i].lv=+b.dataset.lv;b.closest("td").querySelector("input").value=b.dataset.lv;save()});
 $("rows").addEventListener("click",e=>{const b=e.target.closest("button[data-a]");if(!b)return;const i=+b.dataset.i,a=b.dataset.a,R=S.rows;
  if(a==="rs"){if(!b.dataset.arm){b.dataset.arm=1;b.textContent="OK?";setTimeout(()=>{b.dataset.arm="";b.textContent="リセット"},3000);return}hist();R[i]=row({id:R[i].id})}
@@ -59,8 +66,8 @@ $("rows").addEventListener("click",e=>{const b=e.target.closest("button[data-a]"
  else if(a==="dn"&&i<R.length-1){hist();[R[i+1],R[i]]=[R[i],R[i+1]]}
  else return;
  save();render()});
-$("sa").onclick=()=>{hist();S.rows.sort((a,b)=>score(a)-score(b));save();render()};
-$("sd").onclick=()=>{hist();S.rows.sort((a,b)=>score(b)-score(a));save();render()};
+$("sa").onclick=()=>{hist();S.rows.sort((a,b)=>pct(a)-pct(b));save();render()};
+$("sd").onclick=()=>{hist();S.rows.sort((a,b)=>pct(b)-pct(a));save();render()};
 $("so").onclick=()=>{hist();S.rows.sort((a,b)=>a.id-b.id);save();render()};
 $("g5").onchange=e=>{hist();S.o5=e.target.checked;save();render()};
 $("un").onclick=()=>{if(!UN.length)return;RE.push(snap());if(RE.length>5)RE.shift();S=JSON.parse(UN.pop());lk=null;save();render();bt()};
@@ -90,7 +97,7 @@ function make(){
  c.lineWidth=1;c.strokeStyle="#c9d1c8";c.textAlign="left";c.font="14px "+F;c.fillStyle="#1d2420";c.fillText("おてボは自身のみ5%短縮",x+22,y+1)}
  RB="#eef2ed";C.forEach((h,ci)=>cell(ci,0,h[0],"#4a554d",12));
  const K=["blue","ote","sm","sp","ss","nu","nd","np","nq","sps"];
- S.rows.forEach((r,i)=>{const y=i+1,v=score(r);RB=r.sk==="得意"?"#fff3c4":r.sk==="苦手"?"#ece1f9":"#fff";
+ S.rows.forEach((r,i)=>{const y=i+1,v=pct(r);RB=r.sk==="得意"?"#fff3c4":r.sk==="苦手"?"#ece1f9":"#fff";
   cell(0,y,"");const x=X(0),yc=T+y*RH+RH/2+1;c.textAlign="left";c.font="16px "+F;c.fillStyle="#000";c.fillText(ING[r.id][1],x+6,yc);c.font="14px "+F;c.fillStyle="#1d2420";c.fillText(ING[r.id][0],x+28,yc);
   cell(1,y,r.sk);cell(2,y,amt(r),v>0?"#1f9d55":v<0?"#d93636":"#1d2420",15,true);cell(3,y,r.pr);cell(4,y,r.gr);
   cell(5,y,r.poke);cell(6,y,r.lv);cell(7,y,r.seq);K.forEach((k,j)=>box(8+j,y,r[k]));cell(18,y,r.memo)});
