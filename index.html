@@ -70,24 +70,28 @@ $("im").onclick=()=>{const t=$("io");if(t.style.display!=="block"){t.style.displ
  try{const d=JSON.parse(decodeURIComponent(escape(atob(t.value.trim()))));hist();S=norm(d);save();render();t.value=""}catch(e){alert("読み込めませんでした。書き出したテキストをそのまま貼り付けてください。")}};
 function make(){
  const C=[["食材",100],["得意苦手",56],["食材量の目安",130],["厳選進捗",62],["育成",150],["ポケモン名",100],["Lv",36],["食材配列",56],["30または50運用",96],["おてボ",52],["食M",40],["スピM",52],["食S",40],["性格食↑",70],["性格食↓",70],["性格スピ↑",80],["性格スピ↓",80],["スピS",48],["備考",100]];
- const W=C.map(a=>a[1]),RH=28,P=2,sc=2,tw=W.reduce((a,b)=>a+b,0),n=S.rows.length;
+ const W=C.map(a=>a[1]),RH=28,P=2,T=28,sc=2,tw=W.reduce((a,b)=>a+b,0),n=S.rows.length;
  const F='"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif';
- const cv=document.createElement("canvas");cv.width=(tw+P*2)*sc;cv.height=(RH*(n+1)+P*2)*sc;
+ const cv=document.createElement("canvas");cv.width=(tw+P*2)*sc;cv.height=(RH*(n+1)+T+P)*sc;
  const c=cv.getContext("2d");c.scale(sc,sc);c.fillStyle="#fff";c.fillRect(0,0,cv.width,cv.height);
  c.textBaseline="middle";c.lineWidth=1;c.strokeStyle="#c9d1c8";
  const X=ci=>P+W.slice(0,ci).reduce((a,b)=>a+b,0);
  let RB="#fff";
- function cell(ci,ri,t,fg,fs,bold){const x=X(ci),y=P+ri*RH;c.fillStyle=RB;c.fillRect(x,y,W[ci],RH);c.strokeRect(x+.5,y+.5,W[ci],RH);
+ function cell(ci,ri,t,fg,fs,bold){const x=X(ci),y=T+ri*RH;c.fillStyle=RB;c.fillRect(x,y,W[ci],RH);c.strokeRect(x+.5,y+.5,W[ci],RH);
   if(t===""||t==null)return;t=String(t);fs=fs||15;const wt=bold?"700 ":"";c.font=wt+fs+"px "+F;while(c.measureText(t).width>W[ci]-6&&fs>8){fs--;c.font=wt+fs+"px "+F}
   c.textAlign="center";c.fillStyle=fg||"#1d2420";c.fillText(t,x+W[ci]/2,y+RH/2+1)}
- function box(ci,ri,on){cell(ci,ri,"");const x=X(ci)+W[ci]/2,y=P+ri*RH+RH/2;c.lineWidth=1.5;c.beginPath();c.rect(x-7,y-7,14,14);
+ function box(ci,ri,on){cell(ci,ri,"");const x=X(ci)+W[ci]/2,y=T+ri*RH+RH/2;c.lineWidth=1.5;c.beginPath();c.rect(x-7,y-7,14,14);
   if(on){c.fillStyle="#2f8f5b";c.strokeStyle="#2f8f5b";c.fill();c.stroke();c.beginPath();c.strokeStyle="#fff";c.moveTo(x-4,y);c.lineTo(x-1,y+3);c.lineTo(x+4,y-3);c.stroke()}
   else{c.fillStyle="#fff";c.strokeStyle="#8a948c";c.fill();c.stroke()}
   c.lineWidth=1;c.strokeStyle="#c9d1c8"}
+ {const x=P+6,y=P+13;c.lineWidth=1.5;c.beginPath();c.rect(x,y-7,14,14);
+ if(S.o5){c.fillStyle="#2f8f5b";c.strokeStyle="#2f8f5b";c.fill();c.stroke();c.beginPath();c.strokeStyle="#fff";c.moveTo(x+3,y);c.lineTo(x+6,y+3);c.lineTo(x+11,y-3);c.stroke()}
+ else{c.fillStyle="#fff";c.strokeStyle="#8a948c";c.fill();c.stroke()}
+ c.lineWidth=1;c.strokeStyle="#c9d1c8";c.textAlign="left";c.font="14px "+F;c.fillStyle="#1d2420";c.fillText("おてボは自身のみ5%短縮",x+22,y+1)}
  RB="#eef2ed";C.forEach((h,ci)=>cell(ci,0,h[0],"#4a554d",12));
  const K=["blue","ote","sm","sp","ss","nu","nd","np","nq","sps"];
  S.rows.forEach((r,i)=>{const y=i+1,v=score(r);RB=r.sk==="得意"?"#fff3c4":r.sk==="苦手"?"#ece1f9":"#fff";
-  cell(0,y,"");const x=X(0),yc=P+y*RH+RH/2+1;c.textAlign="left";c.font="16px "+F;c.fillStyle="#000";c.fillText(ING[r.id][1],x+6,yc);c.font="14px "+F;c.fillStyle="#1d2420";c.fillText(ING[r.id][0],x+28,yc);
+  cell(0,y,"");const x=X(0),yc=T+y*RH+RH/2+1;c.textAlign="left";c.font="16px "+F;c.fillStyle="#000";c.fillText(ING[r.id][1],x+6,yc);c.font="14px "+F;c.fillStyle="#1d2420";c.fillText(ING[r.id][0],x+28,yc);
   cell(1,y,r.sk);cell(2,y,amt(r),v>0?"#1f9d55":v<0?"#d93636":"#1d2420",15,true);cell(3,y,r.pr);cell(4,y,r.gr);
   cell(5,y,r.poke);cell(6,y,r.lv);cell(7,y,r.seq);K.forEach((k,j)=>box(8+j,y,r[k]));cell(18,y,r.memo)});
  const u=cv.toDataURL("image/png");$("img").src=u;$("dl").href=u;$("out").style.display="block";$("out").scrollIntoView({behavior:"smooth"});
