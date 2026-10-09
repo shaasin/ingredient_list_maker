@@ -19,11 +19,13 @@ th,td{padding:4px;border-bottom:1px solid var(--bd);text-align:center;font-weigh
 th{font-size:12px;opacity:.75}.amt{font-weight:700;font-size:15px;min-width:130px;padding:4px 6px;white-space:nowrap}.amt input{font-weight:700;padding:2px 4px;text-align:left}.amt input[readonly]{border:0;background:transparent;padding:2px 0;outline:none}.pos{color:#1f9d55}.neg{color:#d93636}tr.k1 td{background:rgba(255,226,102,.3)}tr.k3 td{background:rgba(176,132,232,.25)}.lv button,.ops button{padding:3px 6px;margin-left:2px}
 #out{display:none;margin-top:14px}#out img{max-width:100%;border:1px solid var(--bd);background:#fff}
 textarea{width:100%;height:70px;margin-top:6px;display:none}
-</style></head><body>
+</style><style id="hs"></style></head><body>
 <h1>食材得意 厳選状況メーカー</h1>
 <div class="bar"><label><input type="checkbox" id="g5"> おてボは自身のみ5%短縮</label></div>
 <div class="bar">並べ替え <button id="sa">食材量の目安% 昇順</button><button id="sd">食材量の目安% 降順</button><button id="so">初期の並びに戻す</button><button id="un">戻る</button><button id="re">やり直し</button></div>
-<div class="wrap"><table><thead><tr id="hd"></tr></thead><tbody id="rows"></tbody></table></div>
+<div class="bar"><button id="cv">列の表示/非表示</button></div>
+<div class="bar" id="cvp" style="display:none"></div>
+<div class="wrap"><table id="tb"><thead><tr id="hd"></tr></thead><tbody id="rows"></tbody></table></div>
 <div class="bar"><button class="main" id="mk">画像を作る</button><button id="cp">表をコピー(Excel用)</button><button id="ex">書き出し</button><button id="im">読み込み</button><button id="rs">リセット</button></div>
 <textarea id="io" placeholder="書き出し:コピーして保存 / 読み込み:貼り付けてもう一度「読み込み」"></textarea>
 <div id="out"><p>画像を長押し(PC は右クリック)で保存できます。 <a id="dl" download="shokuzai-selection.png">PNGをダウンロード</a></p><img id="img" alt="食材得意厳選状況"></div>
@@ -50,7 +52,8 @@ const esc=s=>String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const sel=(i,k,o,v,n)=>`<select data-i="${i}" data-k="${k}"${n?' data-n="1"':""}>`+o.map(x=>{const a=Array.isArray(x)?x:[x,x];return`<option value="${a[0]}"${String(a[0])===String(v)?" selected":""}>${a[1]}</option>`}).join("")+"</select>";
 const inp=(i,k,v,t,w)=>`<input data-i="${i}" data-k="${k}" type="${t||"text"}" value="${esc(v)}" style="width:${w}px">`;
 const chk=(i,k,v)=>`<input data-i="${i}" data-k="${k}" type="checkbox"${v?" checked":""}>`;
-$("hd").innerHTML=["食材","操作","得意苦手","食材量の目安","手入力","厳選進捗","育成","手持ちのポケモン","Lv","食材配列","30または50運用","おてボ","食M","スピM","食S","性格食↑","性格食↓","性格スピ↑","性格スピ↓","スピS","備考"].map(h=>`<th>${h}</th>`).join("");
+const HD=["食材","操作","得意苦手","食材量の目安","手入力","厳選進捗","育成","手持ちのポケモン","Lv","食材配列","30または50運用","おてボ","食M","スピM","食S","性格食↑","性格食↓","性格スピ↑","性格スピ↓","スピS","備考"];
+$("hd").innerHTML=HD.map(h=>`<th>${h}</th>`).join("");
 function render(){$("g5").checked=!!S.o5;
  $("rows").innerHTML=S.rows.map((r,i)=>`<tr class="${kc(r)}"><td style="text-align:left">${ING[r.id][1]} ${ING[r.id][0]}</td><td class="ops"><button data-a="up" data-i="${i}">↑</button><button data-a="dn" data-i="${i}">↓</button><button data-a="rs" data-i="${i}">リセット</button></td><td>${sel(i,"sk",SK,r.sk)}</td><td class="amt ${ac(r)}" id="a${i}">AAA食M<input data-i="${i}" data-k="man" type="text"${r.me?"":" readonly"} value="${sg(pct(r))}" style="width:${wd(r,sg(pct(r)))}">%</td><td>${chk(i,"me",r.me)}</td><td>${sel(i,"pr",PR,r.pr)}</td><td>${sel(i,"gr",GR,r.gr)}</td><td>${inp(i,"poke",r.poke,0,110)}</td><td class="lv">${inp(i,"lv",r.lv,"number",56)}${[30,50,60,70].map(n=>`<button type="button" data-lv="${n}" data-i="${i}">${n}</button>`).join("")}</td><td>${sel(i,"seq",SEQ,r.seq)}</td><td>${chk(i,"blue",r.blue)}</td><td>${chk(i,"ote",r.ote)}</td><td>${chk(i,"sm",r.sm)}</td><td>${chk(i,"sp",r.sp)}</td><td>${chk(i,"ss",r.ss)}</td><td>${chk(i,"nu",r.nu)}</td><td>${chk(i,"nd",r.nd)}</td><td>${chk(i,"np",r.np)}</td><td>${chk(i,"nq",r.nq)}</td><td>${chk(i,"sps",r.sps)}</td><td>${inp(i,"memo",r.memo,0,90)}</td></tr>`).join("");
 }
@@ -121,5 +124,12 @@ $("cp").onclick=async()=>{const b=$("cp");
  if(!ok)try{const t=document.createElement("textarea");t.value=tsv;t.style.cssText="position:fixed;opacity:0";document.body.appendChild(t);t.select();ok=document.execCommand("copy");t.remove()}catch(x){}
  if(!ok){const t=$("io");t.style.display="block";t.value=tsv;t.select()}
  b.textContent=ok?"コピーしました":"コピーできませんでした(下の欄から手動でコピー)";setTimeout(()=>{b.textContent="表をコピー(Excel用)"},2500)};
+let HIDE=[];try{HIDE=JSON.parse(localStorage.getItem("shokuzai2-hide")||"[]")}catch(e){}
+function applyHide(){$("hs").textContent=HIDE.map(n=>`#tb th:nth-child(${n+1}),#tb td:nth-child(${n+1}){display:none}`).join("")}
+function drawCv(){$("cvp").innerHTML=HD.map((h,n)=>`<label style="white-space:nowrap"><input type="checkbox" data-c="${n}"${HIDE.includes(n)?"":" checked"}> ${h}</label>`).join("")+'<button id="cva">すべて表示</button>'}
+$("cv").onclick=()=>{const p=$("cvp");p.style.display=p.style.display==="none"?"flex":"none"};
+$("cvp").addEventListener("change",e=>{const t=e.target;if(t.dataset.c==null)return;const n=+t.dataset.c;HIDE=HIDE.filter(x=>x!==n);if(!t.checked)HIDE.push(n);try{localStorage.setItem("shokuzai2-hide",JSON.stringify(HIDE))}catch(x){}applyHide()});
+$("cvp").addEventListener("click",e=>{if(e.target.id!=="cva")return;HIDE=[];try{localStorage.setItem("shokuzai2-hide","[]")}catch(x){}applyHide();drawCv()});
+applyHide();drawCv();
 $("mk").onclick=make;render();bt();
 </script></body></html>
