@@ -18,6 +18,7 @@ th,td{padding:4px;border-bottom:1px solid var(--bd);text-align:center;font-weigh
 th{font-size:12px;opacity:.75}.amt{font-weight:700;font-size:15px;min-width:130px;padding:4px 6px;white-space:nowrap}.amt input{font-weight:700;padding:2px 4px;text-align:left}.amt input[readonly]{border:0;background:transparent;padding:2px 0;outline:none}.pos{color:#1f9d55}.neg{color:#d93636}tr.k1 td{background:rgba(255,226,102,.3)}tr.k3 td{background:rgba(176,132,232,.25)}.lv button,.ops button{padding:3px 6px;margin-left:2px}
 #out{display:none;margin-top:14px}#out img{max-width:100%;border:1px solid var(--bd);background:#fff}
 textarea{width:100%;height:70px;margin-top:6px;display:none}
+.cb{position:relative;display:inline-block}.cb select{position:absolute;right:0;top:0;width:28px;height:100%;opacity:0;padding:0;border:0;cursor:pointer}.cb i{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-style:normal;font-size:10px;pointer-events:none;opacity:.6}.cb input{padding-right:26px}
 </style><style id="hs"></style></head><body>
 <h1>食材要員ボード</h1>
 <div class="bar"><label><input type="checkbox" id="g5"> おてボは自身のみ5%短縮</label></div>
@@ -31,6 +32,28 @@ textarea{width:100%;height:70px;margin-top:6px;display:none}
 <script>
 const $=id=>document.getElementById(id);
 const ING=[["ネギ","🌿"],["キノコ","🍄"],["リンゴ","🍎"],["ハーブ","🌶️"],["ミート","🥩"],["ミルク","🥛"],["ミツ","🍯"],["オイル","🫒"],["ジンジャー","🌱"],["トマト","🍅"],["カカオ","🍫"],["シッポ","🍤"],["ダイズ","🥜"],["コーン","🌽"],["ポテト","🥔"],["タマゴ","🥚"],["コーヒー","☕"],["カボチャ","🎃"],["アボカド","🥑"]];
+const CAND=[
+["カモネギ","ウェーニバル","ウェルカモ","クワッス","ダグトリオ","ディグダ","メタモン"],
+["モロバレル","タマゲタケ","ミカルゲ","ヌオー","ウパー","ゲンガー","ゴースト","ゴース","ゴローニャ","ゴローン","イシツブテ","クワガノン","デンヂムシ","アゴジムシ"],
+["ラウドボーン","アチゲータ","ホゲータ","アブソル","カイロス","デリバード"],
+["カイリュー","ハクリュー","ミニリュウ","フライゴン","ビブラーバ","ナックラー","ゲンガー","ゴースト","ゴース","リザードン","リザード","ヒトカゲ","ラウドボーン","アチゲータ","ホゲータ"],
+["ボスゴドラ","コドラ","ココドラ","キテルグマ","ヌイコグマ","リザードン","リザード","ヒトカゲ","ドクロッグ","グレッグル","カモネギ","ハルクジラ","アルクジラ","ラウドボーン","アチゲータ","ホゲータ","カメックス","カメール","ゼニガメ","ヌオー","ウパー","バンギラス","サナギラス","ヨーギラス","カイロス","ジジーロン"],
+["カメックス","カメール","ゼニガメ","マスカーニャ","ニャローテ","ニャオハ"],
+["フシギバナ","フシギソウ","フシギダネ","カイロス","アブリボン","アブリー","ハピナス","ラッキー","ピンプク","クワガノン","デンヂムシ","アゴジムシ"],
+["ドクロッグ","グレッグル","レントラー","ルクシオ","コリンク","クチート","ウッウ","メタモン","アブリボン","アブリー","ゲンガー","ゴースト","ゴース","カイリュー","ハクリュー","ミニリュウ","ウェーニバル","ウェルカモ","クワッス"],
+["バンギラス","サナギラス","ヨーギラス","ガルーラ","リザードン","リザード","ヒトカゲ","キュワワー","カモネギ","マスカーニャ","ニャローテ","ニャオハ"],
+["ユキノオー","レントラー","ルクシオ","コリンク","ウツボット","ウツドン","マダツボミ","バリヤード","ダグトリオ","ディグダ","フシギバナ","フシギソウ","フシギダネ","クチート","モロバレル","タマゲタケ","マネネ","ユキカブリ"],
+["アブソル","ドオー","ウパー(パルデア)","カメックス","カメール","ゼニガメ","デリバード"],
+["メタモン","ヤドキング","ヤドラン","ヤドン"],
+["ウェーニバル","バンギラス","サナギラス","ヨーギラス","ウェルカモ","クワッス","ゴローニャ","ゴローン","イシツブテ","ジジーロン","パンプジン","バケッチャ","ボスゴドラ","コドラ","ココドラ","フライゴン","ビブラーバ","ナックラー","ダグトリオ","ディグダ","ガルーラ"],
+["キテルグマ","ヌイコグマ","カイリュー","ハクリュー","ミニリュウ","キュワワー","クチート","アブリボン","アブリー"],
+["ハルクジラ","アルクジラ","マスカーニャ","ニャローテ","ニャオハ","ウツボット","ウツドン","マダツボミ","ゴローニャ","ゴローン","イシツブテ","ヌオー","ウパー","ドオー","ウパー(パルデア)","ハピナス","ラッキー","ピンプク","ガルーラ","バリヤード","ウッウ","フシギバナ","フシギソウ","フシギダネ","パンプジン","バケッチャ","マネネ"],
+["ハピナス","ラッキー","ピンプク","デリバード","ユキノオー","ユキカブリ","モロバレル","タマゲタケ","キテルグマ","ヌイコグマ","ウッウ"],
+["クワガノン","デンヂムシ","アゴジムシ","ボスゴドラ","コドラ","ココドラ","ドオー","ウパー(パルデア)"],
+["パンプジン","バケッチャ","ミカルゲ"],
+["フライゴン","ビブラーバ","ナックラー","ジジーロン"]];
+const DEX={フシギダネ:1,フシギソウ:2,フシギバナ:3,ヒトカゲ:4,リザード:5,リザードン:6,ゼニガメ:7,カメール:8,カメックス:9,ディグダ:50,ダグトリオ:51,マダツボミ:69,ウツドン:70,ウツボット:71,イシツブテ:74,ゴローン:75,ゴローニャ:76,ヤドン:79,ヤドラン:80,カモネギ:83,ゴース:92,ゴースト:93,ゲンガー:94,ラッキー:113,ガルーラ:115,バリヤード:122,カイロス:127,メタモン:132,ミニリュウ:147,ハクリュー:148,カイリュー:149,ウパー:194,"ウパー(パルデア)":194.5,ヌオー:195,ヤドキング:199,デリバード:225,ヨーギラス:246,サナギラス:247,バンギラス:248,ココドラ:304,コドラ:305,ボスゴドラ:306,クチート:303,ナックラー:328,ビブラーバ:329,フライゴン:330,アブソル:359,コリンク:403,ルクシオ:404,レントラー:405,マネネ:439,ピンプク:440,ミカルゲ:442,ユキカブリ:459,ユキノオー:460,グレッグル:453,ドクロッグ:454,ハピナス:242,タマゲタケ:590,モロバレル:591,バケッチャ:710,パンプジン:711,アゴジムシ:736,デンヂムシ:737,クワガノン:738,アブリー:742,アブリボン:743,ヌイコグマ:759,キテルグマ:760,キュワワー:764,ジジーロン:780,ウッウ:845,ニャオハ:906,ニャローテ:907,マスカーニャ:908,ホゲータ:909,アチゲータ:910,ラウドボーン:911,クワッス:912,ウェルカモ:913,ウェーニバル:914,アルクジラ:974,ハルクジラ:975,ドオー:980};
+CAND.forEach(a=>a.sort((x,y)=>(DEX[x]||9999)-(DEX[y]||9999)));
 const SK=["得意","中間","苦手"],PR=["完了","妥協","厳選中"],GR=["完了","育成中","ミニアメブ","ホリデー","おひるね島","その他の方法","計画中","ー"],SEQ=["AAA","AAB","AAC","ABA","ABB","ABC"];
 const row=o=>Object.assign({sk:"中間",pr:"厳選中",gr:"ー",poke:"",lv:60,seq:"AAA",blue:false,ote:false,sm:true,sp:false,ss:false,nu:false,nd:false,np:false,nq:false,sps:false,me:false,man:0,memo:""},o||{});
 const GOLD={"予定なし・計画中":"計画中","睡眠育成":"その他の方法","その他":"その他の方法","ミニアメブ予定":"ミニアメブ","ホリデー予定":"ホリデー","ミニアメブで完成":"ミニアメブ","次回ミニアメブ":"ミニアメブ","ミニアメブ→睡眠orおひるね島で完成":"ミニアメブ","ミニアメブ→おひるね島で完成":"ミニアメブ","ホリデーで完成":"ホリデー","ホリデーかそれ以降":"ホリデー","ホリデー→睡眠orおひるね島で完成":"ホリデー","ホリデー→おひるね島で完成":"ホリデー","ホリデー後も未完成":"計画中","ホリデー以降":"計画中"};
@@ -54,9 +77,10 @@ const chk=(i,k,v)=>`<input data-i="${i}" data-k="${k}" type="checkbox"${v?" chec
 const HD=["食材","操作","得意苦手","食材量の目安","手入力","厳選進捗","育成","手持ちのポケモン","レベル","レベル入力用","食材配列","30または50運用","おてボ","食M","スピM","食S","性格食↑","性格食↓","性格スピ↑","性格スピ↓","スピS","備考"];
 $("hd").innerHTML=HD.map(h=>`<th>${h}</th>`).join("");
 function render(){$("g5").checked=!!S.o5;
- $("rows").innerHTML=S.rows.map((r,i)=>`<tr class="${kc(r)}"><td style="text-align:left">${ING[r.id][1]} ${ING[r.id][0]}</td><td class="ops"><button data-a="up" data-i="${i}">↑</button><button data-a="dn" data-i="${i}">↓</button><button data-a="rs" data-i="${i}">リセット</button></td><td>${sel(i,"sk",SK,r.sk)}</td><td class="amt ${ac(r)}" id="a${i}">AAA食M<input data-i="${i}" data-k="man" type="text"${r.me?"":" readonly"} value="${sg(pct(r))}" style="width:${wd(r,sg(pct(r)))}">%</td><td>${chk(i,"me",r.me)}</td><td>${sel(i,"pr",PR,r.pr)}</td><td>${sel(i,"gr",GR,r.gr)}</td><td>${inp(i,"poke",r.poke,0,110)}</td><td>${inp(i,"lv",r.lv,"number",56)}</td><td class="lv">${[30,50,60,70].map(n=>`<button type="button" data-lv="${n}" data-i="${i}">${n}</button>`).join("")}</td><td>${sel(i,"seq",SEQ,r.seq)}</td><td>${chk(i,"blue",r.blue)}</td><td>${chk(i,"ote",r.ote)}</td><td>${chk(i,"sm",r.sm)}</td><td>${chk(i,"sp",r.sp)}</td><td>${chk(i,"ss",r.ss)}</td><td>${chk(i,"nu",r.nu)}</td><td>${chk(i,"nd",r.nd)}</td><td>${chk(i,"np",r.np)}</td><td>${chk(i,"nq",r.nq)}</td><td>${chk(i,"sps",r.sps)}</td><td>${inp(i,"memo",r.memo,0,90)}</td></tr>`).join("");
+ $("rows").innerHTML=S.rows.map((r,i)=>`<tr class="${kc(r)}"><td style="text-align:left">${ING[r.id][1]} ${ING[r.id][0]}</td><td class="ops"><button data-a="up" data-i="${i}">↑</button><button data-a="dn" data-i="${i}">↓</button><button data-a="rs" data-i="${i}">リセット</button></td><td>${sel(i,"sk",SK,r.sk)}</td><td class="amt ${ac(r)}" id="a${i}">AAA食M<input data-i="${i}" data-k="man" type="text"${r.me?"":" readonly"} value="${sg(pct(r))}" style="width:${wd(r,sg(pct(r)))}">%</td><td>${chk(i,"me",r.me)}</td><td>${sel(i,"pr",PR,r.pr)}</td><td>${sel(i,"gr",GR,r.gr)}</td><td><span class="cb">${inp(i,"poke",r.poke,0,130)}<select data-i="${i}" data-pk="1" title="候補"><option value="">候補</option>${CAND[r.id].map(n=>`<option>${n}</option>`).join("")}</select><i>▼</i></span></td><td>${inp(i,"lv",r.lv,"number",56)}</td><td class="lv">${[30,50,60,70].map(n=>`<button type="button" data-lv="${n}" data-i="${i}">${n}</button>`).join("")}</td><td>${sel(i,"seq",SEQ,r.seq)}</td><td>${chk(i,"blue",r.blue)}</td><td>${chk(i,"ote",r.ote)}</td><td>${chk(i,"sm",r.sm)}</td><td>${chk(i,"sp",r.sp)}</td><td>${chk(i,"ss",r.ss)}</td><td>${chk(i,"nu",r.nu)}</td><td>${chk(i,"nd",r.nd)}</td><td>${chk(i,"np",r.np)}</td><td>${chk(i,"nq",r.nq)}</td><td>${chk(i,"sps",r.sps)}</td><td>${inp(i,"memo",r.memo,0,90)}</td></tr>`).join("");
 }
-$("rows").addEventListener("input",e=>{const t=e.target,i=t.dataset.i;if(i==null||!t.dataset.k)return;
+$("rows").addEventListener("input",e=>{const t=e.target,i=t.dataset.i;if(t.dataset.pk){if(!t.value)return;hist();S.rows[i].poke=t.value;save();render();return}
+ if(i==null||!t.dataset.k)return;
  if(t.dataset.k==="man"){{const c=t.value.replace(/[^0-9+-]/g,"");if(c!==t.value)t.value=c}if(!/^[+-]?\d+$/.test(t.value)||+t.value<-100||+t.value>200)return;hist(i+"man");S.rows[i].man=+t.value;refresh(i);save();return}
  hist(t.type==="text"||t.type==="number"?i+t.dataset.k:null);S.rows[i][t.dataset.k]=t.type==="checkbox"?t.checked:(t.type==="number"||t.dataset.n)?+t.value:t.value;if(t.dataset.k==="me"&&t.checked)S.rows[i].man=Math.max(-100,Math.min(200,autoPct(S.rows[i])));{const r=S.rows[i],k=t.dataset.k;if(k==="pr"){if(r.pr==="厳選中")r.gr="ー";else if(r.gr==="ー")r.gr="計画中"}if(k==="gr"){if(r.gr==="ー")r.pr="厳選中";else if(r.pr==="厳選中")r.pr="完了"}}refresh(i);save();if(t.dataset.k==="pr"||t.dataset.k==="gr")render()});
 function refresh(i){const r=S.rows[i],td=$("a"+i),v=pct(r),f=td.querySelector("input");td.className="amt "+ac(r);f.readOnly=!r.me;if(document.activeElement!==f)f.value=sg(v);f.style.width=wd(r,sg(v));td.parentNode.className=kc(r)}
