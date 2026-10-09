@@ -77,10 +77,10 @@ const esc=s=>String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const sel=(i,k,o,v,n)=>`<select data-i="${i}" data-k="${k}"${n?' data-n="1"':""}>`+o.map(x=>{const a=Array.isArray(x)?x:[x,x];return`<option value="${a[0]}"${String(a[0])===String(v)?" selected":""}>${a[1]}</option>`}).join("")+"</select>";
 const inp=(i,k,v,t,w)=>`<input data-i="${i}" data-k="${k}" type="${t||"text"}" value="${esc(v)}" style="width:${w}px">`;
 const chk=(i,k,v)=>`<input data-i="${i}" data-k="${k}" type="checkbox"${v?" checked":""}>`;
-const HD=["食材","操作","得意苦手","食材量の目安","手入力","厳選進捗","育成","手持ちのポケモン","レベル","レベル入力用","食材配列","30または50運用","おてボ","食M","スピM","食S","性格食↑","性格食↓","性格スピ↑","性格スピ↓","スピS","備考"];
+const HD=["食材","操作","得意苦手","食材量の目安","手入力","厳選進捗","育成","手持ちのポケモン","レベル","レベル入力用","食材配列","30または50運用","おてボ","食M","スピM","食S","スピS","性格食↑","性格スピ↑","性格食↓","性格スピ↓","備考"];
 $("hd").innerHTML=HD.map(h=>`<th>${h}</th>`).join("");
 function render(){$("g5").checked=!!S.o5;
- $("rows").innerHTML=S.rows.map((r,i)=>`<tr class="${kc(r)}"><td style="text-align:left">${ING[r.id][1]} ${ING[r.id][0]}</td><td class="ops"><button data-a="up" data-i="${i}">↑</button><button data-a="dn" data-i="${i}">↓</button><button data-a="rs" data-i="${i}">リセット</button></td><td>${sel(i,"sk",SK,r.sk)}</td><td class="amt ${ac(r)}" id="a${i}">AAA食M<input data-i="${i}" data-k="man" type="text"${r.me?"":" readonly"} value="${sg(pct(r))}" style="width:${wd(r,sg(pct(r)))}">%</td><td>${chk(i,"me",r.me)}</td><td>${sel(i,"pr",PR,r.pr)}</td><td>${sel(i,"gr",GR,r.gr)}</td><td><span class="cb">${inp(i,"poke",r.poke,0,130)}<select data-i="${i}" data-pk="1" title="候補"><option value="">候補</option>${CAND[r.id].map(n=>`<option>${n}</option>`).join("")}</select><i>▼</i></span></td><td>${inp(i,"lv",r.lv,"number",56)}</td><td class="lv">${[30,50,60,70].map(n=>`<button type="button" data-lv="${n}" data-i="${i}">${n}</button>`).join("")}</td><td>${sel(i,"seq",SEQ,r.seq)}</td><td>${chk(i,"blue",r.blue)}</td><td>${chk(i,"ote",r.ote)}</td><td>${chk(i,"sm",r.sm)}</td><td>${chk(i,"sp",r.sp)}</td><td>${chk(i,"ss",r.ss)}</td><td>${chk(i,"nu",r.nu)}</td><td>${chk(i,"nd",r.nd)}</td><td>${chk(i,"np",r.np)}</td><td>${chk(i,"nq",r.nq)}</td><td>${chk(i,"sps",r.sps)}</td><td>${inp(i,"memo",r.memo,0,90)}</td></tr>`).join("");
+ $("rows").innerHTML=S.rows.map((r,i)=>`<tr class="${kc(r)}"><td style="text-align:left">${ING[r.id][1]} ${ING[r.id][0]}</td><td class="ops"><button data-a="up" data-i="${i}">↑</button><button data-a="dn" data-i="${i}">↓</button><button data-a="rs" data-i="${i}">リセット</button></td><td>${sel(i,"sk",SK,r.sk)}</td><td class="amt ${ac(r)}" id="a${i}">AAA食M<input data-i="${i}" data-k="man" type="text"${r.me?"":" readonly"} value="${sg(pct(r))}" style="width:${wd(r,sg(pct(r)))}">%</td><td>${chk(i,"me",r.me)}</td><td>${sel(i,"pr",PR,r.pr)}</td><td>${sel(i,"gr",GR,r.gr)}</td><td><span class="cb">${inp(i,"poke",r.poke,0,130)}<select data-i="${i}" data-pk="1" title="候補"><option value="">候補</option>${CAND[r.id].map(n=>`<option>${n}</option>`).join("")}</select><i>▼</i></span></td><td>${inp(i,"lv",r.lv,"number",56)}</td><td class="lv">${[30,50,60,70].map(n=>`<button type="button" data-lv="${n}" data-i="${i}">${n}</button>`).join("")}</td><td>${sel(i,"seq",SEQ,r.seq)}</td><td>${chk(i,"blue",r.blue)}</td><td>${chk(i,"ote",r.ote)}</td><td>${chk(i,"sm",r.sm)}</td><td>${chk(i,"sp",r.sp)}</td><td>${chk(i,"ss",r.ss)}</td><td>${chk(i,"sps",r.sps)}</td><td>${chk(i,"nu",r.nu)}</td><td>${chk(i,"np",r.np)}</td><td>${chk(i,"nd",r.nd)}</td><td>${chk(i,"nq",r.nq)}</td><td>${inp(i,"memo",r.memo,0,90)}</td></tr>`).join("");
 }
 $("rows").addEventListener("input",e=>{const t=e.target,i=t.dataset.i;if(t.dataset.pk){if(!t.value)return;hist();S.rows[i].poke=t.value;save();render();return}
  if(i==null||!t.dataset.k)return;
@@ -108,7 +108,7 @@ $("ex").onclick=()=>{const t=$("io");t.style.display="block";t.value=btoa(unesca
 $("im").onclick=()=>{const t=$("io");if(t.style.display!=="block"){t.style.display="block";t.value="";t.focus();return}
  try{const d=JSON.parse(decodeURIComponent(escape(atob(t.value.trim()))));hist();S=norm(d);save();render();t.value=""}catch(e){alert("読み込めませんでした。書き出したテキストをそのまま貼り付けてください。")}};
 function make(){
- const C=[["食材",100],["得意苦手",56],["食材量の目安",130],["厳選進捗",62],["育成",100],["手持ちのポケモン",112],["レベル",48],["食材配列",56],["30または50運用",96],["おてボ",52],["食M",40],["スピM",52],["食S",40],["性格食↑",70],["性格食↓",70],["性格スピ↑",80],["性格スピ↓",80],["スピS",48],["備考",100]];
+ const C=[["食材",100],["得意苦手",56],["食材量の目安",130],["厳選進捗",62],["育成",100],["手持ちのポケモン",112],["レベル",48],["食材配列",56],["30または50運用",96],["おてボ",52],["食M",40],["スピM",52],["食S",40],["スピS",48],["性格食↑",70],["性格スピ↑",80],["性格食↓",70],["性格スピ↓",80],["備考",100]];
  const W=C.map(a=>a[1]),RH=28,HH=28,P=2,T=28,sc=2,tw=W.reduce((a,b)=>a+b,0),n=S.rows.length;
  const F='"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif';
  const cv=document.createElement("canvas");cv.width=(tw+P*2)*sc;cv.height=(RH*n+HH+T+P)*sc;
@@ -128,7 +128,7 @@ function make(){
  else{c.fillStyle="#fff";c.strokeStyle="#8a948c";c.fill();c.stroke()}
  c.lineWidth=1;c.strokeStyle="#c9d1c8";c.textAlign="left";c.font="14px "+F;c.fillStyle="#1d2420";c.fillText("おてボは自身のみ5%短縮",x+22,y+1)}
  RB="#eef2ed";C.forEach((h,ci)=>cell(ci,0,h[0],"#4a554d",12));
- const K=["blue","ote","sm","sp","ss","nu","nd","np","nq","sps"];
+ const K=["blue","ote","sm","sp","ss","sps","nu","np","nd","nq"];
  S.rows.forEach((r,i)=>{const y=i+1,v=pct(r);RB=r.sk==="得意"?"#fff3c4":r.sk==="苦手"?"#ece1f9":"#fff";
   cell(0,y,"");const x=X(0),yc=T+HH+(y-1)*RH+RH/2+1;c.textAlign="left";c.font="16px "+F;c.fillStyle="#000";c.fillText(ING[r.id][1],x+6,yc);c.font="14px "+F;c.fillStyle="#1d2420";c.fillText(ING[r.id][0],x+28,yc);
   cell(1,y,r.sk);cell(2,y,amt(r),v>0?"#1f9d55":v<0?"#d93636":"#1d2420",15,true);cell(3,y,r.pr);cell(4,y,r.gr);
@@ -137,7 +137,7 @@ function make(){
 }
 let rt=0;$("rs").onclick=function(){if(!rt){this.textContent="もう一度押すと全てリセット";rt=setTimeout(()=>{rt=0;this.textContent="リセット"},3000);return}clearTimeout(rt);rt=0;this.textContent="リセット";hist();S={note:"",o5:false,rows:ING.map((_,i)=>row({id:i}))};save();render();$("out").style.display="none"};
 $("cp").onclick=async()=>{const b=$("cp");
- const H=["食材","得意苦手","食材量の目安","厳選進捗","育成","手持ちのポケモン","レベル","食材配列","30または50運用","おてボ","食M","スピM","食S","性格食↑","性格食↓","性格スピ↑","性格スピ↓","スピS","備考"],K=["blue","ote","sm","sp","ss","nu","nd","np","nq","sps"];
+ const H=["食材","得意苦手","食材量の目安","厳選進捗","育成","手持ちのポケモン","レベル","食材配列","30または50運用","おてボ","食M","スピM","食S","スピS","性格食↑","性格スピ↑","性格食↓","性格スピ↓","備考"],K=["blue","ote","sm","sp","ss","sps","nu","np","nd","nq"];
  const rows=S.rows.map(r=>[ING[r.id][1]+" "+ING[r.id][0],r.sk,amt(r),r.pr,r.gr,r.poke,r.lv,r.seq].concat(K.map(k=>r[k]?"☑":"☐"),[r.memo]));
  const q=v=>{v=String(v);return /["\t\r\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
  const tsv=["おてボは自身のみ5%短縮\t"+(S.o5?"☑":"☐")].concat([H].concat(rows).map(a=>a.map(q).join("\t"))).join("\r\n");
@@ -151,12 +151,13 @@ $("cp").onclick=async()=>{const b=$("cp");
  if(!ok){const t=$("io");t.style.display="block";t.value=tsv;t.select()}
  b.textContent=ok?"コピーしました":"コピーできませんでした(下の欄から手動でコピー)";setTimeout(()=>{b.textContent="表をコピー(Excel用)"},2500)};
 let HIDE=[];try{HIDE=JSON.parse(localStorage.getItem("shokuzai2-hide")||"[]")}catch(e){}
-try{if(localStorage.getItem("shokuzai2-hv")!=="2"){const o=HIDE;HIDE=[];o.forEach(n=>{HIDE.push(n>=9?n+1:n);if(n===8)HIDE.push(9)});localStorage.setItem("shokuzai2-hide",JSON.stringify(HIDE));localStorage.setItem("shokuzai2-hv","2")}}catch(e){}
+try{if(!["2","3"].includes(localStorage.getItem("shokuzai2-hv"))){const o=HIDE;HIDE=[];o.forEach(n=>{HIDE.push(n>=9?n+1:n);if(n===8)HIDE.push(9)});localStorage.setItem("shokuzai2-hide",JSON.stringify(HIDE));localStorage.setItem("shokuzai2-hv","2")}}catch(e){}
 function applyHide(){$("hs").textContent=HIDE.map(n=>`#tb th:nth-child(${n+1}),#tb td:nth-child(${n+1}){display:none}`).join("")}
 function drawCv(){$("cvp").innerHTML=HD.map((h,n)=>`<label style="white-space:nowrap"><input type="checkbox" data-c="${n}"${HIDE.includes(n)?"":" checked"}> ${h}</label>`).join("")+'<button id="cva">すべて表示</button>'}
 $("cv").onclick=()=>{const p=$("cvp");p.style.display=p.style.display==="none"?"flex":"none"};
 $("cvp").addEventListener("change",e=>{const t=e.target;if(t.dataset.c==null)return;const n=+t.dataset.c;HIDE=HIDE.filter(x=>x!==n);if(!t.checked)HIDE.push(n);try{localStorage.setItem("shokuzai2-hide",JSON.stringify(HIDE))}catch(x){}applyHide()});
 $("cvp").addEventListener("click",e=>{if(e.target.id!=="cva")return;HIDE=[];try{localStorage.setItem("shokuzai2-hide","[]")}catch(x){}applyHide();drawCv()});
+try{if(localStorage.getItem("shokuzai2-hv")!=="3"){const mp={16:17,17:19,18:18,19:20,20:16};HIDE=HIDE.map(n=>mp[n]!=null?mp[n]:n);localStorage.setItem("shokuzai2-hide",JSON.stringify(HIDE));localStorage.setItem("shokuzai2-hv","3")}}catch(e){}
 applyHide();drawCv();
 $("mk").onclick=make;render();bt();
 </script></body></html>
