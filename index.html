@@ -69,7 +69,7 @@ let UN=[],RE=[],lk=null,lt=0;const snap=()=>JSON.stringify(S);
 function hist(key){const n=Date.now();if(key&&key===lk&&n-lt<2000){lt=n;return}lk=key||null;lt=n;UN.push(snap());if(UN.length>5)UN.shift();RE=[];bt()}
 function bt(){$("un").disabled=!UN.length;$("re").disabled=!RE.length;$("un").textContent="戻る";$("re").textContent="やり直し"}
 function score(r){const b=r.blue,s=SEQ.includes(r.seq)?r.seq:"AAA";const kb=(b?{AAA:0.75,AAB:0.75,AAC:0.75,ABA:0.54,ABB:0.54,ABC:0.54}:{AAA:1,AAB:0.5,AAC:0.5,ABA:0.64,ABB:0.86,ABC:0.5})[s];
- const a=r.ss?(r.sm?1.13:0.87):(r.sm?1:0.74),kc=(r.nu?1.2:1)*(r.nd?0.8:1),kd=({S:1.08,M:1.16,O:1.33,O5:1.05,SM:1.27,SO:1.47,SO5:1.14,MO:1.64,MO5:1.23,SMO:1.85,SMO5:1.35})[(r.sps?"S":"")+(r.sp?"M":"")+(r.ote?(S.o5?"O5":"O"):"")]||1,ke=(r.np?1.1:1)*(r.nq?0.93:1);
+ const a=r.ss?(r.sm?1.13:0.87):(r.sm?1:0.74),kc=(r.nu?1.2:1)*(r.nd?0.8:1),kd=({S:1.08,M:1.16,O:1.33,O5:1.05,SM:1.27,SO:1.47,SO5:1.14,MO:1.45,MO5:1.23,SMO:1.56,SMO5:1.35})[(r.sps?"S":"")+(r.sp?"M":"")+(r.ote?(S.o5?"O5":"O"):"")]||1,ke=(r.np?1.1:1)*(r.nq?0.93:1);
  return Math.round(a*kb*kc*kd*ke*20)/20}
 const kc=r=>r.sk==="得意"?"k1":r.sk==="苦手"?"k3":"";const autoPct=r=>Math.round((score(r)-1)*100);const pct=r=>r.me&&r.man!=null?r.man:autoPct(r);const sg=v=>(v>=0?"+":"")+v;const wd=(r,t)=>r.me?"6ch":(t.length+.6)+"ch";const ac=r=>{const v=pct(r);return v>0?"pos":v<0?"neg":""};
 const amt=r=>{const v=pct(r);return"AAA食M"+sg(v)+"%"};
