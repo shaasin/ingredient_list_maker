@@ -52,10 +52,10 @@ const esc=s=>String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const sel=(i,k,o,v,n)=>`<select data-i="${i}" data-k="${k}"${n?' data-n="1"':""}>`+o.map(x=>{const a=Array.isArray(x)?x:[x,x];return`<option value="${a[0]}"${String(a[0])===String(v)?" selected":""}>${a[1]}</option>`}).join("")+"</select>";
 const inp=(i,k,v,t,w)=>`<input data-i="${i}" data-k="${k}" type="${t||"text"}" value="${esc(v)}" style="width:${w}px">`;
 const chk=(i,k,v)=>`<input data-i="${i}" data-k="${k}" type="checkbox"${v?" checked":""}>`;
-const HD=["食材","操作","得意苦手","食材量の目安","手入力","厳選進捗","育成","手持ちのポケモン","Lv","食材配列","30または50運用","おてボ","食M","スピM","食S","性格食↑","性格食↓","性格スピ↑","性格スピ↓","スピS","備考"];
+const HD=["食材","操作","得意苦手","食材量の目安","手入力","厳選進捗","育成","手持ちのポケモン","レベル","レベル入力用","食材配列","30または50運用","おてボ","食M","スピM","食S","性格食↑","性格食↓","性格スピ↑","性格スピ↓","スピS","備考"];
 $("hd").innerHTML=HD.map(h=>`<th>${h}</th>`).join("");
 function render(){$("g5").checked=!!S.o5;
- $("rows").innerHTML=S.rows.map((r,i)=>`<tr class="${kc(r)}"><td style="text-align:left">${ING[r.id][1]} ${ING[r.id][0]}</td><td class="ops"><button data-a="up" data-i="${i}">↑</button><button data-a="dn" data-i="${i}">↓</button><button data-a="rs" data-i="${i}">リセット</button></td><td>${sel(i,"sk",SK,r.sk)}</td><td class="amt ${ac(r)}" id="a${i}">AAA食M<input data-i="${i}" data-k="man" type="text"${r.me?"":" readonly"} value="${sg(pct(r))}" style="width:${wd(r,sg(pct(r)))}">%</td><td>${chk(i,"me",r.me)}</td><td>${sel(i,"pr",PR,r.pr)}</td><td>${sel(i,"gr",GR,r.gr)}</td><td>${inp(i,"poke",r.poke,0,110)}</td><td class="lv">${inp(i,"lv",r.lv,"number",56)}${[30,50,60,70].map(n=>`<button type="button" data-lv="${n}" data-i="${i}">${n}</button>`).join("")}</td><td>${sel(i,"seq",SEQ,r.seq)}</td><td>${chk(i,"blue",r.blue)}</td><td>${chk(i,"ote",r.ote)}</td><td>${chk(i,"sm",r.sm)}</td><td>${chk(i,"sp",r.sp)}</td><td>${chk(i,"ss",r.ss)}</td><td>${chk(i,"nu",r.nu)}</td><td>${chk(i,"nd",r.nd)}</td><td>${chk(i,"np",r.np)}</td><td>${chk(i,"nq",r.nq)}</td><td>${chk(i,"sps",r.sps)}</td><td>${inp(i,"memo",r.memo,0,90)}</td></tr>`).join("");
+ $("rows").innerHTML=S.rows.map((r,i)=>`<tr class="${kc(r)}"><td style="text-align:left">${ING[r.id][1]} ${ING[r.id][0]}</td><td class="ops"><button data-a="up" data-i="${i}">↑</button><button data-a="dn" data-i="${i}">↓</button><button data-a="rs" data-i="${i}">リセット</button></td><td>${sel(i,"sk",SK,r.sk)}</td><td class="amt ${ac(r)}" id="a${i}">AAA食M<input data-i="${i}" data-k="man" type="text"${r.me?"":" readonly"} value="${sg(pct(r))}" style="width:${wd(r,sg(pct(r)))}">%</td><td>${chk(i,"me",r.me)}</td><td>${sel(i,"pr",PR,r.pr)}</td><td>${sel(i,"gr",GR,r.gr)}</td><td>${inp(i,"poke",r.poke,0,110)}</td><td>${inp(i,"lv",r.lv,"number",56)}</td><td class="lv">${[30,50,60,70].map(n=>`<button type="button" data-lv="${n}" data-i="${i}">${n}</button>`).join("")}</td><td>${sel(i,"seq",SEQ,r.seq)}</td><td>${chk(i,"blue",r.blue)}</td><td>${chk(i,"ote",r.ote)}</td><td>${chk(i,"sm",r.sm)}</td><td>${chk(i,"sp",r.sp)}</td><td>${chk(i,"ss",r.ss)}</td><td>${chk(i,"nu",r.nu)}</td><td>${chk(i,"nd",r.nd)}</td><td>${chk(i,"np",r.np)}</td><td>${chk(i,"nq",r.nq)}</td><td>${chk(i,"sps",r.sps)}</td><td>${inp(i,"memo",r.memo,0,90)}</td></tr>`).join("");
 }
 $("rows").addEventListener("input",e=>{const t=e.target,i=t.dataset.i;if(i==null||!t.dataset.k)return;
  if(t.dataset.k==="man"){{const c=t.value.replace(/[^0-9+-]/g,"");if(c!==t.value)t.value=c}if(!/^[+-]?\d+$/.test(t.value)||+t.value<-100||+t.value>200)return;hist(i+"man");S.rows[i].man=+t.value;refresh(i);save();return}
@@ -65,7 +65,7 @@ $("rows").addEventListener("change",e=>{const t=e.target;if(t.dataset.k!=="man")
  if(!r.me||t.value===""||isNaN(+t.value)){t.value=sg(pct(r));return}
  {const n=Math.max(-100,Math.min(200,Math.round(+t.value)));if(r.man!==n){hist();r.man=n}}
  save();t.value=sg(pct(r));refresh(i)});
-$("rows").addEventListener("click",e=>{const b=e.target.closest("button[data-lv]");if(!b)return;hist();S.rows[b.dataset.i].lv=+b.dataset.lv;b.closest("td").querySelector("input").value=b.dataset.lv;save()});
+$("rows").addEventListener("click",e=>{const b=e.target.closest("button[data-lv]");if(!b)return;hist();S.rows[b.dataset.i].lv=+b.dataset.lv;b.closest("tr").querySelector('input[data-k="lv"]').value=b.dataset.lv;save()});
 $("rows").addEventListener("click",e=>{const b=e.target.closest("button[data-a]");if(!b)return;const i=+b.dataset.i,a=b.dataset.a,R=S.rows;
  if(a==="rs"){if(!b.dataset.arm){b.dataset.arm=1;b.textContent="OK?";setTimeout(()=>{b.dataset.arm="";b.textContent="リセット"},3000);return}hist();R[i]=row({id:R[i].id})}
  else if(a==="up"&&i>0){hist();[R[i-1],R[i]]=[R[i],R[i-1]]}
@@ -82,7 +82,7 @@ $("ex").onclick=()=>{const t=$("io");t.style.display="block";t.value=btoa(unesca
 $("im").onclick=()=>{const t=$("io");if(t.style.display!=="block"){t.style.display="block";t.value="";t.focus();return}
  try{const d=JSON.parse(decodeURIComponent(escape(atob(t.value.trim()))));hist();S=norm(d);save();render();t.value=""}catch(e){alert("読み込めませんでした。書き出したテキストをそのまま貼り付けてください。")}};
 function make(){
- const C=[["食材",100],["得意苦手",56],["食材量の目安",130],["厳選進捗",62],["育成",100],["手持ちのポケモン",112],["Lv",36],["食材配列",56],["30または50運用",96],["おてボ",52],["食M",40],["スピM",52],["食S",40],["性格食↑",70],["性格食↓",70],["性格スピ↑",80],["性格スピ↓",80],["スピS",48],["備考",100]];
+ const C=[["食材",100],["得意苦手",56],["食材量の目安",130],["厳選進捗",62],["育成",100],["手持ちのポケモン",112],["レベル",48],["食材配列",56],["30または50運用",96],["おてボ",52],["食M",40],["スピM",52],["食S",40],["性格食↑",70],["性格食↓",70],["性格スピ↑",80],["性格スピ↓",80],["スピS",48],["備考",100]];
  const W=C.map(a=>a[1]),RH=28,HH=28,P=2,T=28,sc=2,tw=W.reduce((a,b)=>a+b,0),n=S.rows.length;
  const F='"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif';
  const cv=document.createElement("canvas");cv.width=(tw+P*2)*sc;cv.height=(RH*n+HH+T+P)*sc;
@@ -111,7 +111,7 @@ function make(){
 }
 let rt=0;$("rs").onclick=function(){if(!rt){this.textContent="もう一度押すと全てリセット";rt=setTimeout(()=>{rt=0;this.textContent="リセット"},3000);return}clearTimeout(rt);rt=0;this.textContent="リセット";hist();S={note:"",o5:false,rows:ING.map((_,i)=>row({id:i}))};save();render();$("out").style.display="none"};
 $("cp").onclick=async()=>{const b=$("cp");
- const H=["食材","得意苦手","食材量の目安","厳選進捗","育成","手持ちのポケモン","Lv","食材配列","30または50運用","おてボ","食M","スピM","食S","性格食↑","性格食↓","性格スピ↑","性格スピ↓","スピS","備考"],K=["blue","ote","sm","sp","ss","nu","nd","np","nq","sps"];
+ const H=["食材","得意苦手","食材量の目安","厳選進捗","育成","手持ちのポケモン","レベル","食材配列","30または50運用","おてボ","食M","スピM","食S","性格食↑","性格食↓","性格スピ↑","性格スピ↓","スピS","備考"],K=["blue","ote","sm","sp","ss","nu","nd","np","nq","sps"];
  const rows=S.rows.map(r=>[ING[r.id][1]+" "+ING[r.id][0],r.sk,amt(r),r.pr,r.gr,r.poke,r.lv,r.seq].concat(K.map(k=>r[k]?"☑":"☐"),[r.memo]));
  const q=v=>{v=String(v);return /["\t\r\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
  const tsv=["おてボは自身のみ5%短縮\t"+(S.o5?"☑":"☐")].concat([H].concat(rows).map(a=>a.map(q).join("\t"))).join("\r\n");
@@ -125,6 +125,7 @@ $("cp").onclick=async()=>{const b=$("cp");
  if(!ok){const t=$("io");t.style.display="block";t.value=tsv;t.select()}
  b.textContent=ok?"コピーしました":"コピーできませんでした(下の欄から手動でコピー)";setTimeout(()=>{b.textContent="表をコピー(Excel用)"},2500)};
 let HIDE=[];try{HIDE=JSON.parse(localStorage.getItem("shokuzai2-hide")||"[]")}catch(e){}
+try{if(localStorage.getItem("shokuzai2-hv")!=="2"){const o=HIDE;HIDE=[];o.forEach(n=>{HIDE.push(n>=9?n+1:n);if(n===8)HIDE.push(9)});localStorage.setItem("shokuzai2-hide",JSON.stringify(HIDE));localStorage.setItem("shokuzai2-hv","2")}}catch(e){}
 function applyHide(){$("hs").textContent=HIDE.map(n=>`#tb th:nth-child(${n+1}),#tb td:nth-child(${n+1}){display:none}`).join("")}
 function drawCv(){$("cvp").innerHTML=HD.map((h,n)=>`<label style="white-space:nowrap"><input type="checkbox" data-c="${n}"${HIDE.includes(n)?"":" checked"}> ${h}</label>`).join("")+'<button id="cva">すべて表示</button>'}
 $("cv").onclick=()=>{const p=$("cvp");p.style.display=p.style.display==="none"?"flex":"none"};
