@@ -79,7 +79,7 @@ $("ex").onclick=()=>{const t=$("io");t.style.display="block";t.value=btoa(unesca
 $("im").onclick=()=>{const t=$("io");if(t.style.display!=="block"){t.style.display="block";t.value="";t.focus();return}
  try{const d=JSON.parse(decodeURIComponent(escape(atob(t.value.trim()))));hist();S=norm(d);save();render();t.value=""}catch(e){alert("読み込めませんでした。書き出したテキストをそのまま貼り付けてください。")}};
 function make(){
- const C=[["食材",100],["得意苦手",56],["食材量の目安",130],["厳選進捗",62],["育成",260],["手持ちのポケモン",112],["Lv",36],["食材配列",56],["30または50運用",96],["おてボ",52],["食M",40],["スピM",52],["食S",40],["性格食↑",70],["性格食↓",70],["性格スピ↑",80],["性格スピ↓",80],["スピS",48],["備考",100]];
+ const C=[["食材",100],["得意苦手",56],["食材量の目安",130],["厳選進捗",62],["育成",100],["手持ちのポケモン",112],["Lv",36],["食材配列",56],["30または50運用",96],["おてボ",52],["食M",40],["スピM",52],["食S",40],["性格食↑",70],["性格食↓",70],["性格スピ↑",80],["性格スピ↓",80],["スピS",48],["備考",100]];
  const W=C.map(a=>a[1]),RH=28,HH=28,P=2,T=28,sc=2,tw=W.reduce((a,b)=>a+b,0),n=S.rows.length;
  const F='"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif';
  const cv=document.createElement("canvas");cv.width=(tw+P*2)*sc;cv.height=(RH*n+HH+T+P)*sc;
