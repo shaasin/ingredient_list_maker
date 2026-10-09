@@ -24,7 +24,7 @@ textarea{width:100%;height:70px;margin-top:6px;display:none}
 <div class="bar"><label><input type="checkbox" id="g5"> おてボは自身のみ5%短縮</label></div>
 <div class="bar">並べ替え <button id="sa">食材量の目安% 昇順</button><button id="sd">食材量の目安% 降順</button><button id="so">初期の並びに戻す</button><button id="un">戻る</button><button id="re">やり直し</button></div>
 <div class="wrap"><table><thead><tr id="hd"></tr></thead><tbody id="rows"></tbody></table></div>
-<div class="bar"><button class="main" id="mk">画像を作る</button><button id="ex">書き出し</button><button id="im">読み込み</button><button id="rs">リセット</button></div>
+<div class="bar"><button class="main" id="mk">画像を作る</button><button id="cp">表をコピー(Excel用)</button><button id="ex">書き出し</button><button id="im">読み込み</button><button id="rs">リセット</button></div>
 <textarea id="io" placeholder="書き出し:コピーして保存 / 読み込み:貼り付けてもう一度「読み込み」"></textarea>
 <div id="out"><p>画像を長押し(PC は右クリック)で保存できます。 <a id="dl" download="shokuzai-selection.png">PNGをダウンロード</a></p><img id="img" alt="食材得意厳選状況"></div>
 <script>
@@ -107,5 +107,19 @@ function make(){
  const u=cv.toDataURL("image/png");$("img").src=u;$("dl").href=u;$("out").style.display="block";$("out").scrollIntoView({behavior:"smooth"});
 }
 let rt=0;$("rs").onclick=function(){if(!rt){this.textContent="もう一度押すと全てリセット";rt=setTimeout(()=>{rt=0;this.textContent="リセット"},3000);return}clearTimeout(rt);rt=0;this.textContent="リセット";hist();S={note:"",o5:false,rows:ING.map((_,i)=>row({id:i}))};save();render();$("out").style.display="none"};
+$("cp").onclick=async()=>{const b=$("cp");
+ const H=["食材","得意苦手","食材量の目安","厳選進捗","育成","手持ちのポケモン","Lv","食材配列","30または50運用","おてボ","食M","スピM","食S","性格食↑","性格食↓","性格スピ↑","性格スピ↓","スピS","備考"],K=["blue","ote","sm","sp","ss","nu","nd","np","nq","sps"];
+ const rows=S.rows.map(r=>[ING[r.id][1]+" "+ING[r.id][0],r.sk,amt(r),r.pr,r.gr,r.poke,r.lv,r.seq].concat(K.map(k=>r[k]?"☑":"☐"),[r.memo]));
+ const q=v=>{v=String(v);return /["\t\r\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+ const tsv=["おてボは自身のみ5%短縮\t"+(S.o5?"☑":"☐")].concat([H].concat(rows).map(a=>a.map(q).join("\t"))).join("\r\n");
+ const e=x=>String(x).replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m])),td=(v,st)=>`<td style="border:1px solid #999;${st||""}">${e(v)}</td>`;
+ const bg=r=>r.sk==="得意"?"#fff3c4":r.sk==="苦手"?"#ece1f9":"#ffffff";
+ const html='<table style="border-collapse:collapse"><tr>'+td("おてボは自身のみ5%短縮")+td(S.o5?"☑":"☐")+'</tr><tr>'+H.map(h=>td(h,"background:#eef2ed;font-weight:bold")).join("")+'</tr>'+S.rows.map((r,i)=>"<tr>"+rows[i].map((v,j)=>td(v,"background:"+bg(r)+(j===2?";font-weight:bold;color:"+(pct(r)>0?"#1f9d55":pct(r)<0?"#d93636":"#000000"):""))).join("")+"</tr>").join("")+"</table>";
+ let ok=false;
+ try{if(navigator.clipboard&&window.ClipboardItem){await navigator.clipboard.write([new ClipboardItem({"text/plain":new Blob([tsv],{type:"text/plain"}),"text/html":new Blob([html],{type:"text/html"})})]);ok=true}}catch(x){}
+ if(!ok)try{await navigator.clipboard.writeText(tsv);ok=true}catch(x){}
+ if(!ok)try{const t=document.createElement("textarea");t.value=tsv;t.style.cssText="position:fixed;opacity:0";document.body.appendChild(t);t.select();ok=document.execCommand("copy");t.remove()}catch(x){}
+ if(!ok){const t=$("io");t.style.display="block";t.value=tsv;t.select()}
+ b.textContent=ok?"コピーしました":"コピーできませんでした(下の欄から手動でコピー)";setTimeout(()=>{b.textContent="表をコピー(Excel用)"},2500)};
 $("mk").onclick=make;render();bt();
 </script></body></html>
