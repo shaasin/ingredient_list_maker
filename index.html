@@ -153,10 +153,10 @@ $("cp").onclick=async()=>{const b=$("cp");
 let HIDE=[];try{HIDE=JSON.parse(localStorage.getItem("shokuzai2-hide")||"[]")}catch(e){}
 try{if(!["2","3"].includes(localStorage.getItem("shokuzai2-hv"))){const o=HIDE;HIDE=[];o.forEach(n=>{HIDE.push(n>=9?n+1:n);if(n===8)HIDE.push(9)});localStorage.setItem("shokuzai2-hide",JSON.stringify(HIDE));localStorage.setItem("shokuzai2-hv","2")}}catch(e){}
 function applyHide(){$("hs").textContent=HIDE.map(n=>`#tb th:nth-child(${n+1}),#tb td:nth-child(${n+1}){display:none}`).join("")}
-function drawCv(){$("cvp").innerHTML=HD.map((h,n)=>`<label style="white-space:nowrap"><input type="checkbox" data-c="${n}"${HIDE.includes(n)?"":" checked"}> ${h}</label>`).join("")+'<button id="cva">すべて表示</button>'}
+function drawCv(){$("cvp").innerHTML=HD.map((h,n)=>`<label style="white-space:nowrap"><input type="checkbox" data-c="${n}"${HIDE.includes(n)?"":" checked"}> ${h}</label>`).join("")+'<button id="cva">すべて表示</button><button id="cvh">すべて非表示</button>'}
 $("cv").onclick=()=>{const p=$("cvp");p.style.display=p.style.display==="none"?"flex":"none"};
 $("cvp").addEventListener("change",e=>{const t=e.target;if(t.dataset.c==null)return;const n=+t.dataset.c;HIDE=HIDE.filter(x=>x!==n);if(!t.checked)HIDE.push(n);try{localStorage.setItem("shokuzai2-hide",JSON.stringify(HIDE))}catch(x){}applyHide()});
-$("cvp").addEventListener("click",e=>{if(e.target.id!=="cva")return;HIDE=[];try{localStorage.setItem("shokuzai2-hide","[]")}catch(x){}applyHide();drawCv()});
+$("cvp").addEventListener("click",e=>{const id=e.target.id;if(id!=="cva"&&id!=="cvh")return;HIDE=id==="cvh"?HD.map((_,n)=>n):[];try{localStorage.setItem("shokuzai2-hide",JSON.stringify(HIDE))}catch(x){}applyHide();drawCv()});
 try{if(localStorage.getItem("shokuzai2-hv")!=="3"){const mp={16:17,17:19,18:18,19:20,20:16};HIDE=HIDE.map(n=>mp[n]!=null?mp[n]:n);localStorage.setItem("shokuzai2-hide",JSON.stringify(HIDE));localStorage.setItem("shokuzai2-hv","3")}}catch(e){}
 applyHide();drawCv();
 $("mk").onclick=make;render();bt();
